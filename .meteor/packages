@@ -23,6 +23,7 @@ arunoda:streams
 rocketchat:lib
 
 rocketchat:autolinker
+rocketchat:broadcast-notifications
 rocketchat:colors
 rocketchat:custom-oauth
 rocketchat:emojione
