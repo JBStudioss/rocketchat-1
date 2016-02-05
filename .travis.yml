@@ -2,53 +2,44 @@ sudo: required
 language: node_js
 branches:
   only:
-  - master
+  - develop
+  - "/^(\\d+\\.)?(\\d+\\.)?(\\*|\\d+)$/"
+git:
+  depth: 1
 node_js:
-- '0.10'
-addons:
-  apt:
-    sources:
-    - google-chrome
-    packages:
-    - google-chrome-stable
+- '0.12'
+cache:
+  directories:
+  - "~/.meteor"
 before_install:
-- curl https://install.meteor.com | /bin/sh
 - npm install -g npm@'>=2.13.5'
 - mkdir -p node_modules
-- npm install phantomjs
-- npm install velocity-cli
-- export PHANTOMJS_BIN=./node_modules/phantomjs/bin/phantomjs
-- export JASMINE_BROWSER=PhantomJS
-- export DEBUG=1
-- export JASMINE_DEBUG=1
-- export VELOCITY_DEBUG=1
-- export VELOCITY_DEBUG_MIRROR=1
+install:
+- curl https://install.meteor.com | /bin/sh
+before_script:
+- mkdir /tmp/build
 script:
-- if [[ "$TRAVIS_PULL_REQUEST" != "false" ]]; then echo "Building PR $TRAVIS_PULL_REQUEST"; meteor build ../build; exit $?; fi
-- cd .travis
-- npm install
-- npm start
-- cd ..
-- meteor build ../build
-- cd .travis
-- sh ./namefiles.sh
-- cd ..
-- meteor add-platform ios
-- meteor add rocketchat:livechat rocketchat:hubot sanjo:jasmine velocity:console-reporter
-- ./node_modules/velocity-cli/bin/velocity test-packages --ci
-- ./node_modules/velocity-cli/bin/velocity test-app --ci
-- meteor build --server demo.rocket.chat  ../build
-- cd .travis
-- sh ./namedemo.sh
-- cd ..
-after_deploy:
-- "curl -H \"Content-Type: application/json\" --data \"{'build': true}\" -X POST https://registry.hub.docker.com/u/rocketchat/rocket.chat/trigger/$PUSHTOKEN/"
+- meteor build /tmp/build
+before_deploy:
+- source ".travis/setartname.sh"
+- source ".travis/setdeploydir.sh"
+- ".travis/setupsig.sh"
+- ".travis/namefiles.sh"
+- ".travis/sandstorm.sh"
 deploy:
   provider: s3
   access_key_id: "AKIAIKIA7H7D47KUHYCA"
   secret_access_key: $ACCESSKEY
-  bucket: "rocketchatbuild"
+  bucket: "download.rocket.chat"
   skip_cleanup: true
-  local_dir: ../build
+  upload_dir: build
+  local_dir: $ROCKET_DEPLOY_DIR
   on:
-    branch: master
+    condition: "$TRAVIS_PULL_REQUEST=false"
+    all_branches: true
+after_deploy:
+- ".travis/docker.sh"
+- ".travis/update-releases.sh"
+env:
+  global:
+    secure: HrPOM5sBibYkMcf9aeQThYPCDiXeLkg0Xgv0HvH88/ku/gphDpNEjHNReHZM3cyfm9y3RhHpVdD+Zzy38S2goKyewRzpXJsuyerOYkjND0v3tivhs9CAX8PAUxj1U5zllTyH4bgW2ZwRtNnwnmtIM/JJlnySMpKVDqIZBpbhn3ph9bJ2J+BW3D3Jw8meQ1vCX8szIibyJK/5QX6HG2RBFXJGYoQ8DmR8jQv0aJQvT1Az5DO4yImk8tX4NP95qOc19Jywr1DsbaSBZeJ8lFJAmBpIGx7KAmUVCcxSxfbXGRhs2K4iEYb3rJ/dU6KiyPsKGUG4aYNGgbvcX0ZxX/BZ6ZU9ff0E4IIf43IxoN3ElrOqOFk5msJAXbrJEreINSzDqKOy8NFYtCQ49E2gwzfage4ZXkhFyx3wMPa5bzpr3ncsTceMjMVz03uL781X6NLuCkUmXv+n8K2MNhJU9Xinpdx1GRJm+0lXJspNNJ1ruHeJtls4epj4bmCwKmmZbFKPXqa5e8xVcMIkwt1LMiHduhE+WgKNHdOMhXrCcTxF62ybLlsHXmyLLJeNjTeKS8QG2XSoonClDAz/1R41I1DsMPblcgz9uvYCf7UtyftbhJ83bnJeEmOYQiwijLG0+QMq+B2+mmZan3Z7Hl7O53dnwuLxz7EO7EhQhY+CqHVgc6s=

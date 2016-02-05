@@ -2,6 +2,12 @@ less = Npm.require('less')
 autoprefixer = Npm.require('less-plugin-autoprefix')
 crypto = Npm.require('crypto')
 
+logger = new Logger 'rocketchat:theme',
+	methods:
+		stop_rendering:
+			type: 'info'
+
+
 calculateClientHash = WebAppHashing.calculateClientHash
 WebAppHashing.calculateClientHash = (manifest, includeFilter, runtimeConfigOverride) ->
 	css = RocketChat.theme.getCss()
@@ -32,10 +38,10 @@ WebAppHashing.calculateClientHash = (manifest, includeFilter, runtimeConfigOverr
 
 RocketChat.theme = new class
 	variables: {}
+	packageCallbacks: []
 	files: [
 		'assets/stylesheets/global/_variables.less'
 		'assets/stylesheets/utils/_emojione.import.less'
-		'assets/stylesheets/utils/_fonts.import.less'
 		'assets/stylesheets/utils/_keyframes.import.less'
 		'assets/stylesheets/utils/_lesshat.import.less'
 		'assets/stylesheets/utils/_preloader.import.less'
@@ -72,6 +78,11 @@ RocketChat.theme = new class
 
 		content.push Assets.getText file for file in @files
 
+		for packageCallback in @packageCallbacks
+			result = packageCallback()
+			if _.isString result
+				content.push result
+
 		content = content.join '\n'
 
 		options =
@@ -82,7 +93,7 @@ RocketChat.theme = new class
 
 		start = Date.now()
 		less.render content, options, (err, data) ->
-			console.log 'stop rendering', Date.now() - start
+			logger.stop_rendering Date.now() - start
 			if err?
 				return console.log err
 
@@ -120,6 +131,9 @@ RocketChat.theme = new class
 			items.push "@#{name}: #{variable.value};"
 
 		return items.join '\n'
+
+	addPackageAsset: (cb) ->
+		@packageCallbacks.push cb
 
 	getCss: ->
 		return RocketChat.settings.get 'css'

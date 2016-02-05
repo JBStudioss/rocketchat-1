@@ -1,19 +1,48 @@
-Meteor.startup ->
-	roles = ['admin', 'moderator', 'user']
-	RocketChat.roomTypes.addType('starredRooms', roles);
-	RocketChat.roomTypes.addType('channels', roles);
-	RocketChat.roomTypes.addType('directMessages', roles);
-	RocketChat.roomTypes.addType('privateGroups', roles);
+RocketChat.roomTypes.add null, 0,
+	template: 'starredRooms'
+	icon: 'icon-star'
 
-	RocketChat.roomTypes.setIcon('c', 'icon-hash');
-	RocketChat.roomTypes.setIcon('d', 'icon-at');
-	RocketChat.roomTypes.setIcon('p', 'icon-lock');
+RocketChat.roomTypes.add 'c', 10,
+	template: 'channels'
+	icon: 'icon-hash'
+	route:
+		name: 'channel'
+		path: '/channel/:name'
+		action: (params, queryParams) ->
+			Session.set 'showUserInfo'
+			openRoom 'c', params.name
+			RocketChat.TabBar.showGroup 'channel'
+		link: (sub) ->
+			return { name: sub.name }
+	condition: ->
+		return RocketChat.authz.hasAllPermission 'view-c-room'
 
-	RocketChat.roomTypes.setRoute 'c', 'channel', (sub) ->
-		return { name: sub.name }
+RocketChat.roomTypes.add 'd', 20,
+	template: 'directMessages'
+	icon: 'icon-at'
+	route:
+		name: 'direct'
+		path: '/direct/:username'
+		action: (params, queryParams) ->
+			Session.set 'showUserInfo', params.username
+			openRoom 'd', params.username
+			RocketChat.TabBar.showGroup 'directmessage'
+		link: (sub) ->
+			return { username: sub.name }
+	condition: ->
+		return RocketChat.authz.hasAllPermission 'view-d-room'
 
-	RocketChat.roomTypes.setRoute 'd', 'direct', (sub) ->
-		return { username: sub.name }
-
-	RocketChat.roomTypes.setRoute 'p', 'group', (sub) ->
-		return { name: sub.name }
+RocketChat.roomTypes.add 'p', 30,
+	template: 'privateGroups'
+	icon: 'icon-lock'
+	route:
+		name: 'group'
+		path: '/group/:name'
+		action: (params, queryParams) ->
+			Session.set 'showUserInfo'
+			openRoom 'p', params.name
+			RocketChat.TabBar.showGroup 'privategroup'
+		link: (sub) ->
+			return { name: sub.name }
+	condition: ->
+		return RocketChat.authz.hasAllPermission 'view-p-room'

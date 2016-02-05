@@ -11,12 +11,14 @@ Meteor.startup ->
 
 	console.log "Using #{storeType} for Avatar storage".green
 
-	transformWrite = undefined
-	if RocketChat.settings.get('Accounts_AvatarResize') is true
+	transformWrite = (file, readStream, writeStream) ->
+		if RocketChatFile.enabled is false or RocketChat.settings.get('Accounts_AvatarResize') isnt true
+			return readStream.pipe writeStream
+
 		height = RocketChat.settings.get 'Accounts_AvatarSize'
 		width = height
-		transformWrite = (file, readStream, writeStream) ->
-			RocketChatFile.gm(readStream, file.fileName).background('#ffffff').resize(width, height+'^>').gravity('Center').extent(width, height).stream('jpeg').pipe(writeStream)
+
+		RocketChatFile.gm(readStream, file.fileName).background('#ffffff').resize(width, height+'^>').gravity('Center').extent(width, height).stream('jpeg').pipe(writeStream)
 
 	path = "~/uploads"
 
@@ -33,7 +35,7 @@ Meteor.startup ->
 			username: decodeURIComponent(req.url.replace(/^\//, '').replace(/\?.*$/, ''))
 
 		if params.username[0] isnt '@'
-			file = RocketChatFileAvatarInstance.getFileWithReadStream params.username
+			file = RocketChatFileAvatarInstance.getFileWithReadStream encodeURIComponent(params.username)
 		else
 			params.username = params.username.replace '@', ''
 
@@ -41,8 +43,17 @@ Meteor.startup ->
 		res.setHeader 'Content-Disposition', 'inline'
 
 		if not file?
-			res.setHeader 'content-type', 'image/svg+xml'
-			res.setHeader 'cache-control', 'public, max-age=31536000'
+			res.setHeader 'Content-Type', 'image/svg+xml'
+			res.setHeader 'Cache-Control', 'public, max-age=0'
+			res.setHeader 'Expires', '-1'
+			res.setHeader 'Last-Modified', "Thu, 01 Jan 2015 00:00:00 GMT"
+
+			reqModifiedHeader = req.headers["if-modified-since"];
+			if reqModifiedHeader?
+				if reqModifiedHeader is "Thu, 01 Jan 2015 00:00:00 GMT"
+					res.writeHead 304
+					res.end()
+					return
 
 			colors = ['#F44336','#E91E63','#9C27B0','#673AB7','#3F51B5','#2196F3','#03A9F4','#00BCD4','#009688','#4CAF50','#8BC34A','#CDDC39','#FFC107','#FF9800','#FF5722','#795548','#9E9E9E','#607D8B']
 
@@ -84,8 +95,10 @@ Meteor.startup ->
 				res.end()
 				return
 
+		res.setHeader 'Cache-Control', 'public, max-age=0'
+		res.setHeader 'Expires', '-1'
 		res.setHeader 'Last-Modified', file.uploadDate?.toUTCString() or new Date().toUTCString()
-		res.setHeader 'content-type', 'image/jpeg'
+		res.setHeader 'Content-Type', 'image/jpeg'
 		res.setHeader 'Content-Length', file.length
 
 		file.readStream.pipe res

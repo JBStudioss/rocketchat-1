@@ -2,8 +2,6 @@ Meteor.publish 'userData', ->
 	unless this.userId
 		return this.ready()
 
-	console.log '[publish] userData'.green
-
 	RocketChat.models.Users.find this.userId,
 		fields:
 			name: 1
@@ -19,3 +17,4 @@ Meteor.publish 'userData', ->
 			'services.github.id': 1
 			'services.gitlab.id': 1
 			lastUnreadBroadcastNotification: 1
+			requirePasswordChange: 1

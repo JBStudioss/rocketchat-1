@@ -53,6 +53,8 @@ code {
 	word-wrap: break-word;
 	text-align: left;
 	white-space: pre-wrap;
+	unicode-bidi: embed;
+	direction: ltr;
 	&.inline {
 		display: inline;
 		padding: 0 0.5em;
@@ -76,11 +78,12 @@ blockquote {
 	position: relative;
 	&:before {
 		content: ' ';
-		height: 100%;
 		width: 4px;
 		position: absolute;
+		border-radius: 2px;
 		left: 0px;
-		border-radius: 10px;
+		top: -1px;
+		bottom: -1px;
 	}
 }
 
@@ -258,6 +261,23 @@ blockquote {
 		margin-top: 20px;
 		text-align: right;
 	}
+
+	&.request-password {
+		margin: 0 auto;
+
+		fieldset {
+			margin-top: 20px;
+
+			label {
+				display: block;
+				margin-top: 20px;
+			}
+		}
+
+		.submit {
+			text-align: center;
+		}
+	}
 }
 
 .input-line {
@@ -297,7 +317,8 @@ blockquote {
 			animation-iteration-count: infinite;
 			animation-timing-function: linear;
 		}
-		.icon-search {
+		.icon-search,
+		.icon-right-open-small {
 			position: absolute;
 			left: 2px;
 			top: 10px;
@@ -394,8 +415,8 @@ html {
 }
 
 body {
-	font-family: "Roboto", "HelveticaNeue-Light", "sans-serif";
-	font-size: 14px;
+	font-family: 'Helvetica Neue', Helvetica, Roboto, Arial, sans-serif, "Meiryo UI";
+	font-size: 0.875rem;
 	height: 100%;
 	width: 100%;
 	-webkit-font-smoothing: antialiased;
@@ -425,6 +446,7 @@ select,
 input[type='text'],
 input[type='number'],
 input[type='email'],
+input[type='url'],
 input[type='password'] {
 	-webkit-appearance: none;
 	height: 35px;
@@ -458,6 +480,21 @@ input.search {
 		top: 0;
 		left: 0;
 	}
+}
+
+form.inline {
+	input[type='text'],
+	input[type='number'],
+	input[type='email'],
+	input[type='url'],
+	input[type='password'] {
+		width: auto;
+	}
+}
+
+input[disabled],
+textarea[disabled] {
+	background-color: #f4f4f4 !important;
 }
 
 .search-form {
@@ -848,6 +885,10 @@ a.github-fork {
 	overflow: hidden;
 	position: relative;
 	border-radius: 4px;
+	.emojione {
+		height: 100%;
+		margin: 0px;
+	}
 	.avatar-image {
 		height: 100%;
 		width: 100%;
@@ -1560,7 +1601,7 @@ a.github-fork {
 		}
 	}
 	h2 {
-		max-width: 90%;
+		width: 100%;
 		overflow: hidden;
 		white-space: nowrap;
 		text-overflow: ellipsis;
@@ -1703,6 +1744,10 @@ a.github-fork {
 			.transform(translateX(0));
 		}
 	}
+	&.main-modal {
+		left: 0px;
+		margin-right: 0px;
+	}
 	.container-fluid {
 		padding-top: 0;
 	}
@@ -1712,6 +1757,108 @@ a.github-fork {
 }
 
 .page-settings {
+	.content {
+		padding: 20px 0;
+		background-color: #f8f8f8;
+		color: #444;
+
+		> .info {
+			max-width: auto;
+			line-height: 24px;
+			padding-left: 20px;
+			font-size: 16px;
+			font-weight: 500;
+		}
+	}
+
+	.section {
+		border: 1px solid #ddd;
+		border-left: none;
+		background-color: #fff;
+		padding: 20px;
+		margin-bottom: 20px;
+
+		&.section-collapsed {
+			.section-content {
+				display: none;
+			}
+		}
+
+		.section-title {
+			display: flex;
+			font-size: 24px;
+			font-weight: 600;
+			color: #444;
+			line-height: 40px;
+
+			.section-title-text {
+				flex-grow: 1;
+			}
+
+			.section-title-right {
+				line-height: 0px;
+			}
+		}
+
+		.section-content {
+			border: none !important;
+			border-radius: 0px !important;
+			padding: 20px 0 0 0 !important;
+
+			.input-line {
+				border-bottom: 1px solid #eee;
+				padding: 20px 0;
+				margin-bottom: 0px;
+
+				&:last-child {
+					border-bottom: none;
+					padding-bottom: 0;
+				}
+
+				&:first-child {
+					padding-top: 0;
+				}
+
+				&.setting-changed {
+					> label {
+						color: #627CFF
+					}
+				}
+
+				&[disabled] {
+					label {
+						color: #888;
+					}
+				}
+
+				input {
+					color: #444;
+				}
+
+				> label {
+					text-align: left;
+					font-weight: 500;
+					font-size: 16px;
+					line-height: 20px;
+					color: #444;
+				}
+
+				.settings-description {
+					color: #888;
+					padding: 5px;
+				}
+
+				.settings-alert {
+					background-color: rgb(255, 255, 230);
+					border: 1px solid rgb(255, 242, 196);
+					color: orange;
+					font-weight: bold;
+					padding: 5px;
+				}
+			}
+		}
+	}
+
 	.settings-description {
 		.allow-text-selection;
 	}
@@ -1719,6 +1866,45 @@ a.github-fork {
 		max-width: none;
 		width: 100%;
 		padding: 0;
+	}
+
+	.settings-file-preview {
+		display: flex;
+		align-items: center;
+
+		input[type=file] {
+			position: absolute !important;
+			width: 100%;
+			top: 0;
+			left: 0;
+			height: 100%;
+			opacity: 0;
+			z-index: 10000;
+			cursor: pointer;
+			* {
+				cursor: pointer;
+			}
+		}
+
+		.preview {
+			height: 50px;
+			width: 100px;
+			border-radius: 4px;
+			overflow: hidden;
+			box-shadow: 0 0 1px rgba(0,0,0,.5) inset;
+			background-size: contain;
+			background-position: center center;
+			background-repeat: no-repeat;
+
+			&.no-file {
+				background-color: #fafafa;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				color: #ccc;
+				font-size: 24px;
+			}
+		}
 	}
 }
 
@@ -1972,8 +2158,16 @@ a.github-fork {
 		text-transform: uppercase;
 		text-align: center;
 
-		> a {
+		> a.mark-read {
 			float: right;
+
+			&:hover {
+				cursor: pointer;
+			}
+		}
+
+		> a.jump-to {
+			float: left;
 
 			&:hover {
 				cursor: pointer;
@@ -1989,7 +2183,11 @@ a.github-fork {
 	height: 100%;
 	top: 0;
 	left: 0;
-
+	.room-topic {
+		font-size: 14px;
+		opacity: 0.4;
+		margin-left: 10px;
+	}
 	.edit-room-title {
 		margin-left: 4px;
 		font-size: 16px;
@@ -2245,6 +2443,9 @@ a.github-fork {
 	width: 100%;
 	.calc(height,
 	~'100% - 120px');
+	.wrapper.has-more-next {
+		padding-bottom: 24px;
+	}
 	ul {
 		padding: 21px 0 10px;
 	}
@@ -2281,9 +2482,39 @@ a.github-fork {
 			.transform(translateY(150%));
 		}
 	}
+	.jump-recent {
+		z-index: 15;
+		background-color: #E7E7E7;
+		position: absolute;
+		text-align: right;
+		height: 24px;
+		line-height: 24px;
+		font-size: 0.8em;
+		padding-right: 20px;
+		bottom: 0;
+		left: 20px;
+		right: 20px;
+		border-top-left-radius: 4px;
+		border-top-right-radius: 4px;
+
+		span {
+			cursor: pointer;
+		}
+		.transition(transform 0.3s ease-out);
+		.transform(translateY(0));
+		&.not {
+			.transform(translateY(150%));
+		}
+	}
 	.editing {
 		.body {
 			border-radius: 4px;
+		}
+	}
+	&.selectable .message {
+		cursor: pointer;
+		&.selected {
+			background-color: #FFD;
 		}
 	}
 }
@@ -2304,11 +2535,17 @@ a.github-fork {
 }
 
 .message {
-	font-size: 14px;
-	padding: 18px 20px 4px 70px;
+	padding: 8px 20px 4px 70px;
 	position: relative;
 	line-height: 20px;
 	min-height: 40px;
+
+	&.highlight {
+		-webkit-animation: highlight 3s;
+		-moz-animation: highlight 3s;
+		-o-animation: highlight 3s;
+		animation: highlight 3s;
+	}
 
 	.body, .user.user-card-message, .time {
 		-webkit-user-select: text;
@@ -2325,6 +2562,9 @@ a.github-fork {
 
 	&:nth-child(1) {
 		margin-top: 0;
+	}
+	&:hover {
+		background-color: @message-hover-background-color;
 	}
 	&.new-day {
 		margin-top: 60px;
@@ -2444,7 +2684,6 @@ a.github-fork {
 	.thumb {
 		position: absolute;
 		left: 20px;
-		top: 20px;
 		display: block;
 		width: 40px;
 		height: 40px;
@@ -2466,6 +2705,12 @@ a.github-fork {
 			padding-left: 3px;
 			margin-left: 3px;
 		}
+		.is-bot {
+			background-color: #ccc;
+			padding: 1px 4px;
+			border-radius: 2px;
+			color: white;
+		}
 	}
 	.private {
 		margin-left: 10px;
@@ -2474,6 +2719,7 @@ a.github-fork {
 		min-height: 20px;
 		padding-top: 4px;
 		padding-bottom: 4px;
+		margin-top: 0px;
 		.user {
 			display: none;
 		}
@@ -2502,6 +2748,9 @@ a.github-fork {
 				margin-left: 1px;
 			}
 		}
+		.body {
+			margin-top: 0px;
+		}
 
 		// .message-dropdown {
 		// 	top: 100%;
@@ -2510,7 +2759,7 @@ a.github-fork {
 
 		&:hover {
 			.time {
-				display: inline-block;
+				// display: inline-block;
 			}
 			.edited {
 				display: none;
@@ -2538,6 +2787,7 @@ a.github-fork {
 	.body {
 		opacity: 1;
 		.transition(opacity 1s linear);
+		margin-top: 2px;
 
 		.inline-image {
 			background-size: contain;
@@ -2559,13 +2809,18 @@ a.github-fork {
 	&.temp .body {
 		opacity: .5;
 	}
+	.message-alias {
+		color: #aaa;
+		font-weight: 400;
+		padding-left: 2px;
+	}
 }
 
 .compact {
 	.message {
-		padding: 5px 20px 5px 70px;
-		.thumb:not(.thumb-small) .avatar {
-			margin-top: -15px;
+		padding: 4px 20px 4px 70px;
+		.body {
+			margin-top: 0px;
 		}
 	}
 }
@@ -2824,6 +3079,15 @@ a.github-fork {
 			float: left;
 			color: #444;
 			margin-right: 10px;
+
+			&.file-delete {
+				float: right;
+				padding-top: 10px;
+				&:hover {
+					color: red;
+					cursor: pointer;
+				}
+			}
 		}
 	}
 }
@@ -2849,7 +3113,12 @@ a.github-fork {
 		margin-left: 120px;
 		white-space: normal;
 		.calc(width, ~'100% - 120px');
+
 		h3 {
+			-webkit-user-select: text;
+			-moz-user-select: text;
+			-ms-user-select: text;
+			user-select: text;
 			font-size: 24px;
 			margin-bottom: 8px;
 			line-height: 27px;
@@ -2885,6 +3154,10 @@ a.github-fork {
 			}
 		}
 		p {
+			-webkit-user-select: text;
+			-moz-user-select: text;
+			-ms-user-select: text;
+			user-select: text;
 			line-height: 18px;
 			font-size: 12px;
 			font-weight: 300;
@@ -3410,7 +3683,6 @@ a.github-fork {
 			padding: 4px 8px;
 			font-size: 18px;
 			border-bottom: 1px solid;
-			font-family: "Roboto", "HelveticaNeue-Light", "sans-serif";
 			font-weight: 400;
 			border-radius: 0px;
 			&.error {
@@ -3489,7 +3761,6 @@ a.github-fork {
 		}
 	}
 	a {
-		font-family: "Roboto", "HelveticaNeue-Light", "sans-serif";
 		font-weight: 300;
 	}
 	.cell {
@@ -3529,7 +3800,6 @@ a.github-fork {
 			&:extend(.rocket-h3);
 		}
 		p {
-			font-family: "Muli", "Roboto", "HelveticaNeue-Light", "sans-serif";
 			margin: 18px 0;
 			font-size: 16px;
 			line-height: 24px;
@@ -3657,18 +3927,26 @@ a.github-fork {
 }
 
 .statistics-table {
-	border: 1px solid;
-	width:100%;
+	margin-bottom: 30px;
+	border: 2px solid #F5F5F5;
+	width: 100%;
 	tr {
-		background-color:#FFFFFF;
+		background-color: #FFFFFF;
 
 		&:nth-of-type(even) {
-			background-color:#FBFBFB;
+			background-color: #F5F5F5;
 		}
 	}
 	th, td {
 		text-align: left;
-		padding: 3px 10px;
+		padding: 6px 8px;
+	}
+	th {
+		text-align: right;
+		width: 30%;
+	}
+	td {
+		width: 70%;
 	}
 }
 
@@ -4048,5 +4326,105 @@ a.github-fork {
 }
 
 .inline-video {
-	max-height: 200px;
+    height: auto;
+    width: 100%;
+    max-width: 480px;
+    max-height: 270px;
+}
+
+.attention-message {
+	padding-top: 50px;
+	font-size: 24px;
+
+	i {
+		display: block;
+		margin-bottom: 20px;
+		font-size: 40px;
+	}
+
+	span {
+		display: block;
+	}
+}
+
+.search-messages-list {
+	.message-cog-container {
+		.message-action {
+			display: none !important;
+			&.jump-to-star-message {
+				display: block !important;
+			}
+		}
+	}
+
+	.load-more {
+		text-transform: lowercase;
+		text-align: center;
+		line-height: 40px;
+		font-style: italic;
+
+		.load-more-loading {
+			color: #aaa;
+		}
+	}
+
+	.no-results {
+		text-align: center;
+	}
+}
+
+.uploaded-files-list {
+	.load-more {
+		text-transform: lowercase;
+		text-align: center;
+		line-height: 40px;
+		font-style: italic;
+
+		.load-more-loading {
+			color: #aaa;
+		}
+	}
+}
+
+.messages-box {
+	.message-cog-container {
+		.message-action {
+			&.jump-to-search-message {
+				display: none !important;
+			}
+		}
+	}
+}
+
+.terminal {
+	background-color: #000 !important;
+	color: #fff;
+	position: absolute;
+	top: 0px;
+	bottom: 0px;
+	margin: 0;
+	right: 0;
+	left: 0;
+	overflow-y: scroll;
+	border: none !important;
+	padding: 8px 10px !important;
+	-webkit-user-select: text;
+	-moz-user-select: text;
+	-ms-user-select: text;
+	user-select: text;
+
+	* {
+		-webkit-user-select: text;
+		-moz-user-select: text;
+		-ms-user-select: text;
+		user-select: text;
+	}
+
+	> div {
+		word-break: break-all;
+
+		> .time {
+			color: #666;
+		}
+	}
 }
