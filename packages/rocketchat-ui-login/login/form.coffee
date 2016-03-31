@@ -3,13 +3,14 @@ Template.loginForm.helpers
 		return Meteor.user()?.username
 
 	namePlaceholder: ->
-		return if RocketChat.settings.get 'Accounts_RequireNameForSignUp' then t('Name') else t('Name_optional')
+		return if RocketChat.settings.get('Accounts_NameField') is 'optional' then t('Name_optional') else t('Name')
 
 	showFormLogin: ->
 		return RocketChat.settings.get 'Accounts_ShowFormLogin'
 
 	showName: ->
-		return 'hidden' unless Template.instance().state.get() is 'register'
+		if Template.instance().state.get() isnt 'register' or RocketChat.settings.get('Accounts_NameField') is 'hidden'
+			return 'hidden'
 
 	showPassword: ->
 		return 'hidden' unless Template.instance().state.get() in ['login', 'register']
@@ -21,7 +22,8 @@ Template.loginForm.helpers
 		return 'hidden' unless Template.instance().state.get() is 'login'
 
 	showEmail: ->
-		return 'hidden' unless Template.instance().state.get() in ['register', 'forgot-password', 'email-verification']
+		if Template.instance().state.get() not in ['register', 'forgot-password', 'email-verification'] or RocketChat.settings.get('Accounts_EmailField') is 'hidden'
+			return 'hidden'
 
 	showRegisterLink: ->
 		return 'hidden' unless Template.instance().state.get() is 'login'
@@ -66,6 +68,12 @@ Template.loginForm.helpers
 
 	passwordPlaceholder: ->
 		return RocketChat.settings.get('Accounts_PasswordPlaceholder') or t("Password")
+
+	emailPlaceholder: ->
+		if RocketChat.settings.get('Accounts_EmailField') is 'optional'
+			return t('Email_optional')
+		else
+			return t('Email')
 
 Template.loginForm.events
 	'submit #login-card': (event, instance) ->
@@ -154,7 +162,7 @@ Template.loginForm.onCreated ->
 			formObj[field.name] = field.value
 
 		if instance.state.get() isnt 'login'
-			unless formObj['email'] and /\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]+\b/i.test(formObj['email'])
+			if formObj['email'] and not /\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]+\b/i.test(formObj['email'])
 				validationObj['email'] = t('Invalid_email')
 
 		if instance.state.get() isnt 'forgot-password'
@@ -162,10 +170,16 @@ Template.loginForm.onCreated ->
 				validationObj['pass'] = t('Invalid_pass')
 
 		if instance.state.get() is 'register'
-			if RocketChat.settings.get('Accounts_RequireNameForSignUp') and not formObj['name']
+
+			if RocketChat.settings.get('Accounts_NameField') is 'mandatory' and _.isEmpty(_.trim(formObj['name']))
 				validationObj['name'] = t('Invalid_name')
+
+			if RocketChat.settings.get('Accounts_EmailField') is 'mandatory' and _.isEmpty(_.trim(formObj['email']))
+				validationObj['email'] = 1
+
 			if formObj['confirm-pass'] isnt formObj['pass']
 				validationObj['confirm-pass'] = t('Invalid_confirm_pass')
+
 
 		$("#login-card input").removeClass "error"
 		unless _.isEmpty validationObj
