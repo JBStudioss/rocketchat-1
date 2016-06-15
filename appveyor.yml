@@ -6,12 +6,9 @@ install:
   # Restart
   - ps: Start-Sleep -s 5
   - ps: Restart-Computer -Force
+  - meteor.bat build
 
 build: off
 
 cache:
   - '%HOMEPATH%\AppData\Local\.meteor'
-
-test_script:
-  - cd C:\projects\rocket-chat
-  - meteor.bat build
