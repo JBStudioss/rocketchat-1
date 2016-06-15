@@ -7,6 +7,8 @@ install:
   #- ps: Start-Sleep -s 5
   #- ps: Restart-Computer -Force
 
+build: off
+
 cache:
   - '%HOMEPATH%\AppData\Local\.meteor'
 
