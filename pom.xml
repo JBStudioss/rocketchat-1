@@ -1,7 +1,6 @@
 <project>
   ...
   <build>
-    <!-- To define the plugin version in your parent POM -->
     <pluginManagement>
       <plugins>
         <plugin>
@@ -12,7 +11,6 @@
         ...
       </plugins>
     </pluginManagement>
-    <!-- To use the plugin goals in your POM or parent POM -->
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -23,7 +21,6 @@
     </plugins>
   </build>
   ...
-  <!-- To use the report goals in your POM or parent POM -->
   <reporting>
     <plugins>
       <plugin>
