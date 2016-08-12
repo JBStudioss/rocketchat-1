@@ -1,4 +1,4 @@
-<project></project>
+<project>groupId</project>
    <plugin>
       <groupId>org.codehaus.mojo</groupId>
       <artifactId>findbugs-maven-plugin</artifactId>
