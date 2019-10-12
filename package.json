@@ -6,6 +6,6 @@
     "deploy": "npm run build && pm2 startOrRestart pm2.json"
   },
   "devDependencies": {
-    "eslint": "^3.1.1"
+    "eslint": "^6.5.1"
   }
 }
